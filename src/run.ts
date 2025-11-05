@@ -5,7 +5,7 @@ import { getOctokit } from '@actions/github'
 import { create } from '@actions/glob'
 
 export async function run() {
-  const uploadUrl = getInput('upload_url')
+  const uploadUrl = getInput('upload_url').split('{')[0]
   const assetPath = getInput('asset_path')
   const token = getInput('token')
   const octokit = getOctokit(token)
