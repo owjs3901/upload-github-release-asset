@@ -63,9 +63,9 @@ test('when files are found, they should be uploaded successfully', async () => {
   const mockStat = spyOn(fs, 'stat').mockResolvedValue({
     size: 1024,
   } as unknown as Awaited<ReturnType<typeof fs.stat>>)
-  const mockOpen = spyOn(fs, 'open').mockResolvedValue({
-    readableWebStream: () => new ReadableStream(),
-  } as unknown as fs.FileHandle)
+  const mockReadFile = spyOn(fs, 'readFile').mockResolvedValue(
+    Buffer.from('test data'),
+  )
 
   const mockInfo = spyOn(core, 'info').mockImplementation(() => {})
   const mockDebug = spyOn(core, 'debug').mockImplementation(() => {})
@@ -75,7 +75,7 @@ test('when files are found, they should be uploaded successfully', async () => {
   expect(mockInfo).toHaveBeenCalledWith(
     'Uploading 2 files to https://api.github.com/repos/owner/repo/releases/123/assets',
   )
-  expect(mockInfo).toHaveBeenCalledWith('Files: file1.txt\nfile2.txt')
+  expect(mockInfo).toHaveBeenCalledWith('Files:\n- file1.txt\n- file2.txt')
   expect(mockRequest).toHaveBeenCalledTimes(2)
   expect(mockDebug).toHaveBeenCalledWith(
     'Uploading file1.txt to https://api.github.com/repos/owner/repo/releases/123/assets',
@@ -90,9 +90,9 @@ test('when files are found, they should be uploaded successfully', async () => {
     'Uploaded file2.txt to https://api.github.com/repos/owner/repo/releases/123/assets',
   )
 
-  // check if stat and open are called for each file
+  // check if stat and readFile are called for each file
   expect(mockStat).toHaveBeenCalledTimes(2)
-  expect(mockOpen).toHaveBeenCalledTimes(2)
+  expect(mockReadFile).toHaveBeenCalledTimes(2)
 
   // check request call arguments
   const requestCalls = mockRequest.mock.calls
@@ -112,7 +112,7 @@ test('when files are found, they should be uploaded successfully', async () => {
   mockCreate.mockRestore()
   mockGetOctokit.mockRestore()
   mockStat.mockRestore()
-  mockOpen.mockRestore()
+  mockReadFile.mockRestore()
   mockInfo.mockRestore()
   mockDebug.mockRestore()
 })
@@ -147,9 +147,9 @@ test('when an error occurs during upload, setFailed should be called', async () 
   const mockStat = spyOn(fs, 'stat').mockResolvedValue({
     size: 1024,
   } as unknown as Awaited<ReturnType<typeof fs.stat>>)
-  const mockOpen = spyOn(fs, 'open').mockResolvedValue({
-    readableWebStream: () => new ReadableStream(),
-  } as unknown as fs.FileHandle)
+  const mockReadFile = spyOn(fs, 'readFile').mockResolvedValue(
+    Buffer.from('test data'),
+  )
 
   const mockInfo = spyOn(core, 'info').mockImplementation(() => {})
   const mockDebug = spyOn(core, 'debug').mockImplementation(() => {})
@@ -163,7 +163,7 @@ test('when an error occurs during upload, setFailed should be called', async () 
   mockCreate.mockRestore()
   mockGetOctokit.mockRestore()
   mockStat.mockRestore()
-  mockOpen.mockRestore()
+  mockReadFile.mockRestore()
   mockInfo.mockRestore()
   mockDebug.mockRestore()
   mockSetFailed.mockRestore()
@@ -198,9 +198,9 @@ test('single file upload test', async () => {
   const mockStat = spyOn(fs, 'stat').mockResolvedValue({
     size: 2048,
   } as unknown as Awaited<ReturnType<typeof fs.stat>>)
-  const mockOpen = spyOn(fs, 'open').mockResolvedValue({
-    readableWebStream: () => new ReadableStream(),
-  } as unknown as fs.FileHandle)
+  const mockReadFile = spyOn(fs, 'readFile').mockResolvedValue(
+    Buffer.from('test data'),
+  )
 
   const mockInfo = spyOn(core, 'info').mockImplementation(() => {})
   const mockDebug = spyOn(core, 'debug').mockImplementation(() => {})
@@ -210,16 +210,16 @@ test('single file upload test', async () => {
   expect(mockInfo).toHaveBeenCalledWith(
     'Uploading 1 files to https://api.github.com/repos/owner/repo/releases/123/assets',
   )
-  expect(mockInfo).toHaveBeenCalledWith('Files: test.txt')
+  expect(mockInfo).toHaveBeenCalledWith('Files:\n- test.txt')
   expect(mockRequest).toHaveBeenCalledTimes(1)
   expect(mockStat).toHaveBeenCalledWith('test.txt')
-  expect(mockOpen).toHaveBeenCalledWith('test.txt')
+  expect(mockReadFile).toHaveBeenCalledWith('test.txt')
 
   mockGetInput.mockRestore()
   mockCreate.mockRestore()
   mockGetOctokit.mockRestore()
   mockStat.mockRestore()
-  mockOpen.mockRestore()
+  mockReadFile.mockRestore()
   mockInfo.mockRestore()
   mockDebug.mockRestore()
 })

@@ -1,5 +1,5 @@
-import { open, stat } from 'node:fs/promises'
-import { basename } from 'node:path'
+import { readFile, stat } from 'node:fs/promises'
+import { basename, relative } from 'node:path'
 import { debug, getInput, info, setFailed } from '@actions/core'
 import { getOctokit } from '@actions/github'
 import { create } from '@actions/glob'
@@ -17,7 +17,9 @@ export async function run() {
   }
   try {
     info(`Uploading ${files.length} files to ${uploadUrl}`)
-    info(`Files: ${files.join('\n')}`)
+    info(
+      `Files:\n${files.map((file) => `- ${relative(process.cwd(), file)}`).join('\n')}`,
+    )
     await Promise.all(
       files.map(async (file) => {
         debug(`Uploading ${file} to ${uploadUrl}`)
@@ -31,7 +33,7 @@ export async function run() {
             'content-type': 'application/octet-stream',
             authorization: `token ${token}`,
           },
-          data: (await open(file)).readableWebStream(),
+          data: await readFile(file),
         })
         debug(`Uploaded ${file} to ${uploadUrl}`)
       }),
