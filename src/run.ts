@@ -1,4 +1,5 @@
 import { open, stat } from 'node:fs/promises'
+import { basename } from 'node:path'
 import { debug, getInput, info, setFailed } from '@actions/core'
 import { getOctokit } from '@actions/github'
 import { create } from '@actions/glob'
@@ -20,9 +21,11 @@ export async function run() {
     await Promise.all(
       files.map(async (file) => {
         debug(`Uploading ${file} to ${uploadUrl}`)
+        const url = new URL(uploadUrl)
+        url.searchParams.set('name', basename(file))
         await octokit.request({
           method: 'POST',
-          url: uploadUrl,
+          url: url.toString(),
           headers: {
             'content-length': `${(await stat(file)).size}`,
             'content-type': 'application/octet-stream',

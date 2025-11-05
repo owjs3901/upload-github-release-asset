@@ -100,7 +100,7 @@ test('when files are found, they should be uploaded successfully', async () => {
     (requestCalls[0] as unknown as [Parameters<typeof mockOctokit.request>])[0],
   ).toMatchObject({
     method: 'POST',
-    url: 'https://api.github.com/repos/owner/repo/releases/123/assets',
+    url: 'https://api.github.com/repos/owner/repo/releases/123/assets?name=file1.txt',
     headers: {
       'content-length': '1024',
       'content-type': 'application/octet-stream',
